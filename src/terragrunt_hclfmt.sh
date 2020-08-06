@@ -2,51 +2,36 @@
 
 function terragruntHCLFmt {
   # Gather the output of `terragrunt hclfmt`.
-  echo "fmt: info: checking if Terragrunt files in ${tfWorkingDir} are correctly formatted"
-  fmtOutput=$(${tfBinary} hclfmt ${*} 2>&1)
+  echo "fmt: info: checking if Terragrunt HCL files in ${tfWorkingDir} are correctly formatted"
+  if [ ${tfBinary} != "terragrunt" ]; then
+    echo "skipping formatting HCL files"
+    exit 0
+  fi
+
+  fmtOutput=$(${tfBinary} hclfmt  --terragrunt-check ${*} 2>&1)
   fmtExitCode=${?}
 
   # Exit code of 0 indicates success. Print the output and exit.
   if [ ${fmtExitCode} -eq 0 ]; then
-    echo "fmt: info: Terragrunt files in ${tfWorkingDir} are correctly formatted"
+    echo "hclfmt: info: Terragrunt files in ${tfWorkingDir} are correctly formatted"
     echo "${fmtOutput}"
     echo
     exit ${fmtExitCode}
   fi
 
   # Exit code of 2 indicates a parse error. Print the output and exit.
-  if [ ${fmtExitCode} -eq 2 ]; then
-    echo "fmt: error: failed to parse Terragrunt files"
+  if [ ${fmtExitCode} -eq 1 ]; then
+    echo "hclfmt: error: failed to format Terragrunt files"
     echo "${fmtOutput}"
-    echo
-    exit ${fmtExitCode}
   fi
 
-  # Exit code of !0 and !2 indicates failure.
-  echo "fmt: error: Terragrunt files in ${tfWorkingDir} are incorrectly formatted"
-  echo "${fmtOutput}"
-  echo
-  echo "fmt: error: the following files in ${tfWorkingDir} are incorrectly formatted"
-  fmtFileList=$(${tfBinary} fmt -check=true -write=false -list ${fmtRecursive})
-  echo "${fmtFileList}"
-  echo
-
-  # Comment on the pull request if necessary.
   if [ "$GITHUB_EVENT_NAME" == "pull_request" ] && [ "${tfComment}" == "1" ]; then
-    fmtComment=""
-    for file in ${fmtFileList}; do
-      fmtFileDiff=$(${tfBinary} fmt -check=true -write=false -diff "${file}" | sed -n '/@@.*/,//{/@@.*/d;p}')
-      fmtComment="${fmtComment}
-<details><summary><code>${tfWorkingDir}/${file}</code></summary>
-\`\`\`diff
-${fmtFileDiff}
+    fmtCommentWrapper="#### \`${tfBinary} hclfmt\` Failed:
+
 \`\`\`
-</details>"
+${fmtOutput}
+\`\`\`
 
-    done
-
-    fmtCommentWrapper="#### \`${tfBinary} fmt\` Failed
-${fmtComment}
 *Workflow: \`${GITHUB_WORKFLOW}\`, Action: \`${GITHUB_ACTION}\`, Working Directory: \`${tfWorkingDir}\`, Workspace: \`${tfWorkspace}\`*"
 
     fmtCommentWrapper=$(stripColors "${fmtCommentWrapper}")

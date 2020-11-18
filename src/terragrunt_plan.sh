@@ -3,7 +3,7 @@
 function terragruntPlan {
   # Gather the output of `terragrunt plan`.
   if [[ $1 == 'all' ]]; then
-    planCommand="plan-all"
+    planCommand="plan-all --terragrunt-non-interactive"
   else
     planCommand="plan"
   fi

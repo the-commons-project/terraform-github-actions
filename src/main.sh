@@ -182,7 +182,15 @@ function main {
       installTerragrunt
       terragruntPlan ${*}
       ;;
+    plan-all)
+      installTerragrunt
+      terragruntPlan 'all' ${*}
+      ;;
     apply)
+      installTerragrunt
+      terragruntApply ${*}
+      ;;
+    apply-all)
       installTerragrunt
       terragruntApply ${*}
       ;;

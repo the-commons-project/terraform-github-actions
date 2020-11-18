@@ -180,11 +180,11 @@ function main {
       ;;
     plan)
       installTerragrunt
-      terragruntPlan ${*}
+      terragruntPlan ${tfSubcommand} ${*}
       ;;
     plan-all)
       installTerragrunt
-      terragruntPlan 'all' ${*}
+      terragruntPlan ${tfSubcommand} ${*}
       ;;
     apply)
       installTerragrunt

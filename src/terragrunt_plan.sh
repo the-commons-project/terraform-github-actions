@@ -2,20 +2,15 @@
 
 function terragruntPlan {
   # Gather the output of `terragrunt plan`.
-  if [[ $1 == 'all' ]]; then
-    planCommand="plan-all --terragrunt-non-interactive"
-  else
-    planCommand="plan"
-  fi
-  echo "${planCommand}: info: planning Terragrunt configuration in ${tfWorkingDir}"
-  planOutput=$(${tfBinary} ${planCommand} -detailed-exitcode -input=false ${*} 2>&1)
+  echo "plan: info: planning Terragrunt configuration in ${tfWorkingDir}"
+  planOutput=$(${tfBinary} --terragrunt-non-interactive -detailed-exitcode -input=false ${*} 2>&1)
   planExitCode=${?}
   planHasChanges=false
   planCommentStatus="Failed"
 
   # Exit code of 0 indicates success with no changes. Print the output and exit.
   if [ ${planExitCode} -eq 0 ]; then
-    echo "${planCommand}: info: successfully planned Terragrunt configuration in ${tfWorkingDir}"
+    echo "plan: info: successfully planned Terragrunt configuration in ${tfWorkingDir}"
     echo "${planOutput}"
     echo
     echo ::set-output name=tf_actions_plan_has_changes::${planHasChanges}
@@ -28,7 +23,7 @@ function terragruntPlan {
     planExitCode=0
     planHasChanges=true
     planCommentStatus="Success"
-    echo "${planCommand}: info: successfully planned Terragrunt configuration in ${tfWorkingDir}"
+    echo "plan: info: successfully planned Terragrunt configuration in ${tfWorkingDir}"
     echo "${planOutput}"
     echo
     if echo "${planOutput}" | egrep '^-{72}$' &> /dev/null; then
@@ -42,14 +37,14 @@ function terragruntPlan {
 
   # Exit code of !0 indicates failure.
   if [ ${planExitCode} -ne 0 ]; then
-    echo "${planCommand}: error: failed to plan Terragrunt configuration in ${tfWorkingDir}"
+    echo "plan: error: failed to plan Terragrunt configuration in ${tfWorkingDir}"
     echo "${planOutput}"
     echo
   fi
 
   # Comment on the pull request if necessary.
   if [ "$GITHUB_EVENT_NAME" == "pull_request" ] && [ "${tfComment}" == "1" ] && ([ "${planHasChanges}" == "true" ] || [ "${planCommentStatus}" == "Failed" ]); then
-    planCommentWrapper="#### \`${tfBinary} ${planCommand}\` ${planCommentStatus}
+    planCommentWrapper="#### \`${tfBinary} plan\` ${planCommentStatus}
 <details><summary>Show Output</summary>
 
 \`\`\`
@@ -61,10 +56,10 @@ ${planOutput}
 *Workflow: \`${GITHUB_WORKFLOW}\`, Action: \`${GITHUB_ACTION}\`, Working Directory: \`${tfWorkingDir}\`, Workspace: \`${tfWorkspace}\`*"
 
     planCommentWrapper=$(stripColors "${planCommentWrapper}")
-    echo "${planCommand}: info: creating JSON"
+    echo "plan: info: creating JSON"
     planPayload=$(echo "${planCommentWrapper}" | jq -R --slurp '{body: .}')
     planCommentsURL=$(cat ${GITHUB_EVENT_PATH} | jq -r .pull_request.comments_url)
-    echo "${planCommand}: info: commenting on the pull request"
+    echo "plan: info: commenting on the pull request"
     echo "${planPayload}" | curl -s -S -H "Authorization: token ${GITHUB_TOKEN}" --header "Content-Type: application/json" --data @- "${planCommentsURL}" > /dev/null
   fi
 

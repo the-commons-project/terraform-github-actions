@@ -188,11 +188,11 @@ function main {
       ;;
     apply)
       installTerragrunt
-      terragruntApply ${*}
+      terragruntApply ${tfSubcommand}  ${*}
       ;;
     apply-all)
       installTerragrunt
-      terragruntApply ${*}
+      terragruntApply ${tfSubcommand} ${*}
       ;;
     output)
       installTerragrunt

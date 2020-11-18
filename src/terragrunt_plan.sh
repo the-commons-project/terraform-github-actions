@@ -2,7 +2,7 @@
 
 function terragruntPlan {
   # Gather the output of `terragrunt plan`.
-  if [ $1 -eq 'all' ]; then
+  if [ "$1" -eq 'all' ]; then
     planCommand="plan-all"
   else
     planCommand="plan"

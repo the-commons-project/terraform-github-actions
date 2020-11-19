@@ -69,7 +69,7 @@ ${planOutput}
   planOutput="${planOutput//'%'/'%25'}"
   planOutput="${planOutput//$'\n'/'%0A'}"
   planOutput="${planOutput//$'\r'/'%0D'}"
-  echo "${planOutput}"
+
   echo "::set-output name=tf_actions_plan_output::${planOutput}"
   exit ${planExitCode}
 }

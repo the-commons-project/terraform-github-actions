@@ -7,6 +7,7 @@ function terragruntPlan {
   planExitCode=${?}
   planHasChanges=false
   planCommentStatus="Failed"
+  planResult=""
 
   # Exit code of 0 indicates success with no changes. Print the output and exit.
   if [ ${planExitCode} -eq 0 ]; then
@@ -31,8 +32,9 @@ function terragruntPlan {
     fi
     planOutput=$(echo "${planOutput}" | sed -r -e 's/^  \+/\+/g' | sed -r -e 's/^  ~/~/g' | sed -r -e 's/^  -/-/g')
 
-     # If output is longer than max length (65536 characters), keep last part
+    # If output is longer than max length (65536 characters), keep last part
     planOutput=$(echo "${planOutput}" | tail -c 65000 )
+    planResult=$(echo "${planOutput}" | grep Plan)
   fi
 
   # Exit code of !0 indicates failure.
@@ -53,6 +55,7 @@ ${planOutput}
 
 </details>
 
+*Plan result: \`${planResult}\`*
 *Workflow: \`${GITHUB_WORKFLOW}\`, Action: \`${GITHUB_ACTION}\`, Working Directory: \`${tfWorkingDir}\`, Workspace: \`${tfWorkspace}\`*"
 
     planCommentWrapper=$(stripColors "${planCommentWrapper}")

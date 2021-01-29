@@ -1,21 +1,21 @@
 #!/bin/bash
 
-function stripColors {
+function stripColors() {
   echo "${1}" | sed 's/\x1b\[[0-9;]*m//g'
 }
 
-function hasPrefix {
+function hasPrefix() {
   case ${2} in
-    "${1}"*)
-      true
-      ;;
-    *)
-      false
-      ;;
+  "${1}"*)
+    true
+    ;;
+  *)
+    false
+    ;;
   esac
 }
 
-function parseInputs {
+function parseInputs() {
   # Required inputs
   if [ "${INPUT_TF_ACTIONS_VERSION}" != "" ]; then
     tfVersion=${INPUT_TF_ACTIONS_VERSION}
@@ -75,9 +75,9 @@ function parseInputs {
   fi
 }
 
-function configureCLICredentials {
+function configureCLICredentials() {
   if [[ ! -f "${HOME}/.terraformrc" ]] && [[ "${tfCLICredentialsToken}" != "" ]]; then
-    cat > ${HOME}/.terraformrc << EOF
+    cat >${HOME}/.terraformrc <<EOF
 credentials "${tfCLICredentialsHostname}" {
   token = "${tfCLICredentialsToken}"
 }
@@ -85,7 +85,7 @@ EOF
   fi
 }
 
-function installTerraform {
+function installTerraform() {
   if [[ "${tfVersion}" == "latest" ]]; then
     echo "Checking the latest version of Terraform"
     tfVersion=$(curl -sL https://releases.hashicorp.com/terraform/index.json | jq -r '.versions[].version' | grep -v '[-].*' | sort -rV | head -n 1)
@@ -107,7 +107,7 @@ function installTerraform {
   echo "Successfully downloaded Terraform v${tfVersion}"
 
   echo "Unzipping Terraform v${tfVersion}"
-  unzip -d /usr/local/bin /tmp/terraform_${tfVersion} &> /dev/null
+  unzip -d /usr/local/bin /tmp/terraform_${tfVersion} &>/dev/null
   if [ "${?}" -ne 0 ]; then
     echo "Failed to unzip Terraform v${tfVersion}"
     exit 1
@@ -115,7 +115,7 @@ function installTerraform {
   echo "Successfully unzipped Terraform v${tfVersion}"
 }
 
-function installTerragrunt {
+function installTerragrunt() {
   if [[ "${tgVersion}" == "latest" ]]; then
     echo "Checking the latest version of Terragrunt"
     latestURL=$(curl -Ls -o /dev/null -w %{url_effective} https://github.com/gruntwork-io/terragrunt/releases/latest)
@@ -139,7 +139,7 @@ function installTerragrunt {
 
   echo "Moving Terragrunt ${tgVersion} to PATH"
   chmod +x /tmp/terragrunt
-  mv /tmp/terragrunt /usr/local/bin/terragrunt 
+  mv /tmp/terragrunt /usr/local/bin/terragrunt
   if [ "${?}" -ne 0 ]; then
     echo "Failed to move Terragrunt ${tgVersion}"
     exit 1
@@ -147,7 +147,7 @@ function installTerragrunt {
   echo "Successfully moved Terragrunt ${tgVersion}"
 }
 
-function main {
+function main() {
   # Source the other files to gain access to their functions
   scriptDir=$(dirname ${0})
   source ${scriptDir}/terragrunt_fmt.sh
@@ -159,6 +159,7 @@ function main {
   source ${scriptDir}/terragrunt_import.sh
   source ${scriptDir}/terragrunt_taint.sh
   source ${scriptDir}/terragrunt_destroy.sh
+  source ${scriptDir}/terragrunt_show.sh
 
   parseInputs
   configureCLICredentials
@@ -166,46 +167,50 @@ function main {
   cd ${GITHUB_WORKSPACE}/${tfWorkingDir}
 
   case "${tfSubcommand}" in
-    fmt)
-      installTerragrunt
-      terragruntFmt ${*}
-      ;;
-    init)
-      installTerragrunt
-      terragruntInit ${*}
-      ;;
-    validate)
-      installTerragrunt
-      terragruntValidate ${*}
-      ;;
-    plan)
-      installTerragrunt
-      terragruntPlan ${*}
-      ;;
-    apply)
-      installTerragrunt
-      terragruntApply ${*}
-      ;;
-    output)
-      installTerragrunt
-      terragruntOutput ${*}
-      ;;
-    import)
-      installTerragrunt
-      terragruntImport ${*}
-      ;;
-    taint)
-      installTerragrunt
-      terragruntTaint ${*}
-      ;;
-    destroy)
-      installTerragrunt
-      terragruntDestroy ${*}
-      ;;
-    *)
-      echo "Error: Must provide a valid value for terragrunt_subcommand"
-      exit 1
-      ;;
+  fmt)
+    installTerragrunt
+    terragruntFmt ${*}
+    ;;
+  init)
+    installTerragrunt
+    terragruntInit ${*}
+    ;;
+  validate)
+    installTerragrunt
+    terragruntValidate ${*}
+    ;;
+  plan)
+    installTerragrunt
+    terragruntPlan ${*}
+    ;;
+  show)
+    installTerragrunt
+    terragruntShow ${*}
+    ;;
+  apply)
+    installTerragrunt
+    terragruntApply ${*}
+    ;;
+  output)
+    installTerragrunt
+    terragruntOutput ${*}
+    ;;
+  import)
+    installTerragrunt
+    terragruntImport ${*}
+    ;;
+  taint)
+    installTerragrunt
+    terragruntTaint ${*}
+    ;;
+  destroy)
+    installTerragrunt
+    terragruntDestroy ${*}
+    ;;
+  *)
+    echo "Error: Must provide a valid value for terragrunt_subcommand"
+    exit 1
+    ;;
   esac
 }
 

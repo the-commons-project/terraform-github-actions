@@ -3,8 +3,7 @@
 function terragruntShow() {
   # Gather the output of `terragrunt plan`.
   echo "show: info: showing Terragrunt configuration in ${tfWorkingDir}"
-  # showOutput=$(${tfBinary} show -no-color ${*} 2>&1)
-  showOutput=$(${tfBinary} show -no-color ${*})
+  showOutput=$(${tfBinary} show -no-color ${*} 2>&1)
   showExitCode=${?}
   showCommentStatus="Failed"
 
@@ -12,6 +11,7 @@ function terragruntShow() {
   if [ ${showExitCode} -eq 0 ]; then
     echo "show: info: successfully showed Terragrunt configuration in ${tfWorkingDir}"
     echo "${showOutput}"
+    echo ${showOutput} >plan.json
     echo
     exit ${showExitCode}
   fi

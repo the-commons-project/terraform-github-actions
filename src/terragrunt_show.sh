@@ -10,7 +10,8 @@ function terragruntShow() {
   # Exit code of 0 indicates success with no changes. Print the output and exit.
   if [ ${showExitCode} -eq 0 ]; then
     echo "show: info: successfully showed Terragrunt configuration in ${tfWorkingDir}"
-    echo "${showOutput}"
+    # echo "${showOutput}"
+    echo "show: info: saving data to ${tfShowFile}"
     echo ${showOutput} >${tfShowFile}
     echo
     exit ${showExitCode}

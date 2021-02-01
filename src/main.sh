@@ -69,6 +69,8 @@ function parseInputs() {
     tfFmtWrite=1
   fi
 
+  tfShowFile="${INPUT_TF_ACTIONS_SHOW_FILE}:-plan.json"
+
   tfWorkspace="default"
   if [ -n "${TF_WORKSPACE}" ]; then
     tfWorkspace="${TF_WORKSPACE}"

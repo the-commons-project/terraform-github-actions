@@ -11,7 +11,7 @@ function terragruntShow() {
   if [ ${showExitCode} -eq 0 ]; then
     echo "show: info: successfully showed Terragrunt configuration in ${tfWorkingDir}"
     echo "${showOutput}"
-    echo ${showOutput} >plan.json
+    echo ${showOutput} >${tfShowFile}
     echo
     exit ${showExitCode}
   fi

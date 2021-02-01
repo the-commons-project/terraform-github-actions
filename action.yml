@@ -33,6 +33,9 @@ inputs:
   tf_actions_fmt_write:
     description: "Write Terragrunt fmt changes to source files."
     default: false
+  tf_actions_show_file:
+    description: "File name to write the output of show subcommand"
+    default: "plan.json"
 outputs:
   tf_actions_output:
     description: "The Terragrunt outputs in JSON format."

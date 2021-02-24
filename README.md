@@ -126,4 +126,17 @@ The usual [Terraform environment variables](https://www.terraform.io/docs/comman
 
 Other environment variables may be configured to pass data into Terraform. If the data is sensitive, consider using [secrets](#secrets) instead.
 
+
+## Testing
+
+If you want to test these scripts locally, its possible after installing docker in your test environment
+
+1. Open `test/local-test.sh` and modify the GLOBAL variables (in caps) according to your needs
+2. Run it with: `test/local-test.sh` or `test/local-test.sh run-all plan`
+3. The above command:
+ - Builds a docker container with image tag `tg`
+ - Starts that container with those global variables
+
+
+
 **This is a fork of [Terraform Github Actions](https://github.com/hashicorp/terraform-github-actions).**

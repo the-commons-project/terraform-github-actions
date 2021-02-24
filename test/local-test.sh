@@ -6,7 +6,7 @@
 TF_VERSION='0.14.6'
 TG_VERSION='v0.28.4'
 TF_WORKING_DIR='/var/opt'
-TF_SUBCOMMAND='run-all init'
+TF_SUBCOMMAND='run-all plan'
 TG_LOCAL_WORK_DIR="$(pwd)"  # TODO, provide some path which has the terragrunt code
 
 function build_docker {
@@ -22,21 +22,16 @@ function run_docker {
         -e INPUT_TF_ACTIONS_SUBCOMMAND="$TF_SUBCOMMAND" \
         -e INPUT_TF_ACTIONS_WORKING_DIR="$TF_WORKING_DIR" \
         -v $TG_LOCAL_WORK_DIR:$TF_WORKING_DIR \
-        tg
+        tg "$*"
 }
 
 function main {
-
-    # validate cli
-    if [ "$1" != "" ];then
-        TF_SUBCOMMAND=$*
-    fi
 
     # Build the image
     build_docker
 
     # test run it
-    run_docker
+    run_docker "$*"
 }
 
-main $*
+main "$*"
